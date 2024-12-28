@@ -1,0 +1,113 @@
+﻿@using BlazorServerAuthenticationAndAuthorization.Authentication
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager navManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>BlazorServerAuthenticationAndAuthorization</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <!-- Show Sign Out button when the user is authenticated -->
+                    <button class="logout-button" @onclick="ConfirmAndLogout">
+                        Sign Out
+                    </button>
+                </Authorized>
+                <NotAuthorized>
+                    <!-- Show Sign In button when the user is not authenticated -->
+                    <button class="signin-button" @onclick="NavigateToLogin">
+                        Sign In
+                    </button>
+                </NotAuthorized>
+            </AuthorizeView>
+            <!-- About Us button -->
+            <button class="about-us-button" @onclick="NavigateToAboutUs">
+                About Us
+            </button>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    .signin-button,
+    .logout-button,
+    .about-us-button {
+        background-color: #005F5F;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-left: 10px; /* Add some space between buttons */
+    }
+
+        .signin-button:hover,
+        .logout-button:hover,
+        .about-us-button:hover {
+            background-color: #006666;
+        }
+</style>
+
+@code {
+    private async Task Logout()
+    {
+        // Clear authentication state and navigate to the homepage
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null);
+        navManager.NavigateTo("/", true);
+
+        // Notify the UI to refresh
+        StateHasChanged();
+    }
+
+    private void NavigateToLogin()
+    {
+        // Redirect to the login page
+        navManager.NavigateTo("/login");
+
+        // Notify the UI to refresh (just in case)
+        StateHasChanged();
+    }
+
+    private void NavigateToAboutUs()
+    {
+        // Redirect to the about us page
+        navManager.NavigateTo("/about-us");
+
+        // Notify the UI to refresh (just in case)
+        StateHasChanged();
+    }
+
+    private async Task ConfirmAndLogout()
+    {
+        // Display a confirmation dialog before logging out
+        bool confirm = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to sign out?" });
+        if (confirm)
+        {
+            await Logout();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Check authentication state on the first render and refresh the UI
+            await authStateProvider.GetAuthenticationStateAsync();
+            StateHasChanged();
+        }
+    }
+}

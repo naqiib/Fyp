@@ -1,0 +1,62 @@
+﻿
+.profile-card {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-img, .profile-preview {
+    max-width: 100px;
+    border-radius: 50%;
+    margin: 10px auto;
+}
+
+.default-profile-icon {
+    width: 100px;
+    height: 100px;
+    fill: #005F5F;
+}
+
+.edit-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #005F5F;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.profile-form {
+    margin-top: 20px;
+}
+
+    .profile-form label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+
+    .profile-form input, .profile-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .profile-form button {
+        margin: 5px;
+        padding: 10px 20px;
+        background-color: #005F5F;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+

@@ -1,0 +1,397 @@
+﻿@page "/books"
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using BlazorServerAuthenticationAndAuthorization.Authentication
+@using BlazorServerAuthenticationAndAuthorization.Services
+@inject BookService BookService
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserAccountService UserAccountService
+@attribute [Authorize(Roles = "User")]
+
+<link href="/css/Books.css" rel="stylesheet" />
+
+<NavLink href="/addbook" class="btn btn-primary mb-3">Add New Book</NavLink>
+
+<div class="row">
+    @if (books != null && books.Count > 0)
+
+    {
+        @foreach (var book in books)
+
+        {
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    @if (!string.IsNullOrEmpty(book.ImagePath))
+
+                    {
+                        <img src="@book.ImagePath" class="card-img-top" alt="Book Image" />
+                    }
+
+                    else
+
+                    {
+                        <img src="/images/placeholder.png" class="card-img-top" alt="No Image Available" />
+                    }
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="card-text"><strong>BookName:</strong> @book.BookName</p>
+                                <p class="card-title"><strong>ISBN:</strong> @book.ISBN</p>
+                                <p class="card-text"><strong>Author:</strong> @book.Author</p>
+                                <p class="card-text"><strong>Publisher:</strong> @book.Publisher</p>
+                                <p class="card-text"><strong>Edition:</strong> @book.Edition</p>
+                                <p class="card-text"><strong>Condition:</strong> @book.Condition</p>
+                                <p class="card-text"><strong>Category:</strong> @book.Category</p>
+                                <p class="card-text"><strong>Price:</strong> @string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", book.Price)</p>
+                                <p class="card-text"><strong>Cell No:</strong> @book.CellNo</p>
+                                <p class="card-text"><strong>City:</strong> @book.City</p>
+                                @if (book.IsExchangeable)
+
+                                {
+                                    <p class="card-text"><strong>Exchangeable With:</strong> @book.ExchangeBookName</p>
+                                }
+                            </div>
+                            <div class="d-flex flex-column">
+                                <button class="btn btn-primary btn-sm mb-2" @onclick="() => EditBook(book.Id)">Edit</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(book.Id)">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    else
+
+    {
+        <div class="col-12">
+            <div class="alert alert-warning text-center" role="alert">
+                No books available.
+            </div>
+        </div>
+    }
+</div>
+
+
+
+@if (showEditModal)
+
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Book</h5>
+                    <button type="button" class="btn-close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editingBook" OnValidSubmit="UpdateBook">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-3">
+                            <label class="form-label">Book Name</label>
+                            <input type="text" class="form-control" @bind="editingBook.BookName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ISBN</label>
+                            <input type="text" class="form-control" @bind="editingBook.ISBN" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Author</label>
+                            <input type="text" class="form-control" @bind="editingBook.Author" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Publisher</label>
+                            <input type="text" class="form-control" @bind="editingBook.Publisher" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Edition</label>
+                            <input type="text" class="form-control" @bind="editingBook.Edition" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Condition</label>
+                            <select class="form-control" @bind="editingBook.Condition">
+                                <option value="" disabled>Select Condition</option>
+                                <option value="new">New</option>
+                                <option value="like-new">Like New</option>
+                                <option value="used-good">Used - Good</option>
+                                <option value="used-fair">Used - Fair</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" @bind="editingBook.Category">
+                                <option value="" disabled>Select Category</option>
+                                <option value="Generic">Generic</option>
+                                <option value="Novels">Novels</option>
+                                <option value="Science">Science</option>
+                                <option value="Religion">Religion</option>
+                                <option value="Technology">Technology</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" class="form-control" @bind="editingBook.Price" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cell No</label>
+                            <input type="text" class="form-control" @bind="editingBook.CellNo" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" @bind="editingBook.City" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Exchangeable</label>
+                            <input type="checkbox" class="form-check-input" @bind="editingBook.IsExchangeable" />
+                        </div>
+                        @if (editingBook.IsExchangeable)
+
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Exchange Book Name</label>
+                                <input type="text" class="form-control" @bind="editingBook.ExchangeBookName" />
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label class="form-label">Upload Image</label>
+                            <InputFile OnChange="OnFileChange" class="form-control" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showDeleteModal)
+
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this book?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteBook">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Book>? books;
+
+    private Book editingBook = new Book();
+
+    private int deletingBookId;
+
+    private bool showEditModal = false;
+
+    private bool showDeleteModal = false;
+
+    private IBrowserFile? selectedFile;
+
+    private int? userId;
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        try
+
+        {
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+
+
+            if (user.Identity?.IsAuthenticated ?? false)
+
+            {
+
+                var email = user.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+
+
+
+                if (!string.IsNullOrEmpty(email))
+
+                {
+
+                    var userInfo = await UserAccountService.GetByEmailAsync(email);
+
+                    if (userInfo != null)
+
+                    {
+
+                        userId = userInfo.Id;
+
+                        books = await BookService.GetBooksByUserIdAsync(userId.Value);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error loading books: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private async Task EditBook(int id)
+
+    {
+
+        try
+
+        {
+
+            editingBook = await BookService.GetBookByIdAsync(id);
+
+            showEditModal = true;
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error fetching book for editing: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private async Task UpdateBook()
+
+    {
+
+        try
+
+        {
+
+            if (selectedFile != null)
+
+            {
+
+                var buffer = new byte[selectedFile.Size];
+
+                await selectedFile.OpenReadStream().ReadAsync(buffer);
+
+                editingBook.ImagePath = $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+
+            }
+
+            await BookService.UpdateBookAsync(editingBook);
+
+            showEditModal = false;
+
+            books = await BookService.GetBooksByUserIdAsync(userId.Value);
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error updating book: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private void CloseEditModal()
+
+    {
+
+        showEditModal = false;
+
+    }
+
+
+
+    private void ConfirmDelete(int id)
+
+    {
+
+        deletingBookId = id;
+
+        showDeleteModal = true;
+
+    }
+
+
+
+    private async Task DeleteBook()
+
+    {
+
+        try
+
+        {
+
+            await BookService.DeleteBookAsync(deletingBookId);
+
+            showDeleteModal = false;
+
+            books = await BookService.GetBooksByUserIdAsync(userId.Value);
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error deleting book: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private void CloseDeleteModal()
+
+    {
+
+        showDeleteModal = false;
+
+    }
+
+
+
+    private void OnFileChange(InputFileChangeEventArgs e)
+
+    {
+
+        selectedFile = e.File;
+
+    }
+}

@@ -1,0 +1,270 @@
+﻿@page "/addbook"
+@using BlazorServerAuthenticationAndAuthorization.Data
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Web
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AppDbContext DbContext
+@inject NavigationManager Navigation
+
+<link href="/css/AddBook.css" rel="stylesheet" />
+
+<div class="modal" tabindex="-1" style="display:block">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Book</h5>
+                <button type="button" class="btn-close" @onclick="CloseEditModal"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="newBook" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">Book Name</label>
+                        <input type="text" class="form-control" @bind="newBook.BookName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ISBN</label>
+                        <input type="text" class="form-control" @bind="newBook.ISBN" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Author</label>
+                        <input type="text" class="form-control" @bind="newBook.Author" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Publisher</label>
+                        <input type="text" class="form-control" @bind="newBook.Publisher" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Edition</label>
+                        <input type="text" class="form-control" @bind="newBook.Edition" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Condition</label>
+                        <select class="form-control" @bind="newBook.Condition">
+                            <option value="" disabled>Select Condition</option>
+                            <option value="new">New</option>
+                            <option value="like-new">Like New</option>
+                            <option value="used-good">Used - Good</option>
+                            <option value="used-fair">Used - Fair</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" @bind="newBook.Category">
+                            <option value="" disabled>Select Category</option>
+                            <option value="Generic">Generic</option>
+                            <option value="Novels">Novels</option>
+                            <option value="Science">Science</option>
+                            <option value="Religion">Religion</option>
+                            <option value="Technology">Technology</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="number" class="form-control" @bind="newBook.Price" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cell No</label>
+                        <input type="text" class="form-control" @bind="newBook.CellNo" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <select class="form-control" @bind="newBook.City">
+                            <option value="" disabled>Select City</option>
+                            <option value="KPK">KPK</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Lahore">Lahore</option>
+                            <option value="Islamabad">Islamabad</option>
+                            <option value="Sindh">Sindh</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Exchangeable</label>
+                        <input type="checkbox" class="form-check-input" @bind="newBook.IsExchangeable" />
+                    </div>
+                    @if (newBook.IsExchangeable)
+
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Exchange Book Name</label>
+                            <input type="text" class="form-control" @bind="newBook.ExchangeBookName" />
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Upload Image</label>
+                        <InputFile OnChange="HandleFileSelected" class="form-control" />
+                    </div>
+                    <button type="submit" class="add-book-button">Add Book</button>
+                    <div class="profile-link">
+                        <a href="/books">Back to Books</a>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Book newBook = new Book();
+
+    private bool isAuthenticated = false;
+
+    private int? userId;
+
+    private IBrowserFile? selectedFile;
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        try
+
+        {
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+
+
+            isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+
+
+
+            if (isAuthenticated)
+
+            {
+
+                var email = user.FindFirstValue(ClaimTypes.Email);
+
+
+
+                if (!string.IsNullOrEmpty(email))
+
+                {
+
+                    // Fetch User data
+
+                    var userInfo = await DbContext.UserInfo.FirstOrDefaultAsync(u => u.Email == email);
+
+
+
+                    if (userInfo != null)
+
+                    {
+
+                        userId = userInfo.Id;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error loading user profile: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+
+    {
+
+        selectedFile = e.File;
+
+    }
+
+
+
+    private async Task HandleValidSubmit()
+
+    {
+
+        if (userId.HasValue)
+
+        {
+
+            newBook.UserId = userId.Value;
+
+
+
+            if (selectedFile != null)
+
+            {
+
+                try
+
+                {
+
+                    var buffer = new byte[selectedFile.Size];
+
+                    await selectedFile.OpenReadStream(20 * 1024 * 1024).ReadAsync(buffer); 
+
+                    newBook.ImagePath = $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+
+                    Console.WriteLine($"Image Path: {newBook.ImagePath}");
+
+                }
+
+                catch (Exception ex)
+
+                {
+
+                    Console.WriteLine($"Error encoding image: {ex.Message}");
+
+                }
+
+            }
+
+
+
+            try
+
+            {
+
+                DbContext.Books.Add(newBook);
+
+                await DbContext.SaveChangesAsync();
+
+                Navigation.NavigateTo("/books");
+
+            }
+
+            catch (Exception ex)
+
+            {
+
+                Console.WriteLine($"Error adding book: {ex.Message}");
+
+            }
+
+        }
+
+    }
+
+
+
+    private void CloseEditModal()
+
+    {
+
+        Navigation.NavigateTo("/books");
+
+    }
+}
+

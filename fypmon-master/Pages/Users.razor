@@ -1,0 +1,164 @@
+﻿@page "/users"
+@using BlazorServerAuthenticationAndAuthorization.Authentication
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@inject UserAccountService UserAccountService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<link href="/css/Users.css" rel="stylesheet" />
+<h3>Users</h3>
+
+@if (totalBooksUploaded == null)
+{
+    <p>Loading total books uploaded...</p>
+}
+else
+{
+    <p><strong>Total Books Uploaded:</strong> @totalBooksUploaded</p>
+}
+
+@if (users == null)
+{
+    <p>Loading users...</p>
+}
+else if (!users.Any())
+{
+    <p>No users found.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var user in users)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>@user.UserName</strong> - @user.Email
+                    <p><strong>Books Uploaded:</strong> @(user.Books?.Count ?? 0)</p>
+                    @if (user.Books?.Count > 0)
+                    {
+                        <button class="btn btn-info btn-sm" @onclick="() => ShowUserBooks(user.Id)">Show Books</button>
+                    }
+                </span>
+                @if (isAdmin)
+                {
+                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(user.Id)">Delete</button>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@if (showDeleteModal)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this user?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteUser">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showUserBooksModal)
+{
+    <div class="modal show" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Books Uploaded by @selectedUser.UserName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseUserBooksModal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="book-list">
+                        @foreach (var book in selectedUser.Books)
+                        {
+                            <li class="book-item">@book.BookName</li>
+                        }
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseUserBooksModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<UserInfo> users;
+    private int? totalBooksUploaded;
+    private bool isAdmin = false;
+    private bool showDeleteModal = false;
+    private bool showUserBooksModal = false;
+    private UserInfo selectedUser;
+    private int deletingUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = await UserAccountService.GetAllUsersAsync();
+            totalBooksUploaded = await UserAccountService.GetTotalBooksUploadedAsync();
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity != null && user.Identity.IsAuthenticated)
+            {
+                isAdmin = user.IsInRole("Administrator");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading users: {ex.Message}");
+        }
+    }
+
+    private void ConfirmDelete(int userId)
+    {
+        deletingUserId = userId;
+        showDeleteModal = true;
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            await UserAccountService.DeleteUserAsync(deletingUserId);
+            users = await UserAccountService.GetAllUsersAsync();
+            totalBooksUploaded = await UserAccountService.GetTotalBooksUploadedAsync();
+            showDeleteModal = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting user: {ex.Message}");
+        }
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+    }
+
+    private void ShowUserBooks(int userId)
+    {
+        selectedUser = users.FirstOrDefault(u => u.Id == userId);
+        showUserBooksModal = true;
+    }
+
+    private void CloseUserBooksModal()
+    {
+        showUserBooksModal = false;
+    }
+}

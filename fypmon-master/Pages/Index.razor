@@ -1,0 +1,306 @@
+﻿@page "/"
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using BlazorServerAuthenticationAndAuthorization.Services
+@inject BookService BookService
+@using System.Security.Claims
+@inject IJSRuntime js
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<PageTitle>Index</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Welcome, @context.User.Identity?.Name!</h1>
+    </Authorized>
+    <NotAuthorized>
+    </NotAuthorized>
+</AuthorizeView>
+
+<link href="/css/index.css" rel="stylesheet" />
+
+<div class="main-home">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="search-filter-container">
+            <input type="text" placeholder="Search for books..." @bind="searchTerm" class="search-input" />
+            <button class="btn-search" @onclick="SearchBooks">Search</button>
+        </div>
+
+        <!-- Categories Row -->
+        <div class="categories-row">
+            @foreach (var category in allCategories)
+            {
+                <button class="category-button" @onclick="() => FilterByCategory(category)">
+                    @category
+                </button>
+            }
+        </div>
+
+        <!-- Price Filter Section -->
+        <div class="filter-price">
+            <label for="min-price">Min Price:</label>
+            <input type="number" id="min-price" @bind="minPrice" @oninput="FilterByPrice" class="price-input" placeholder="Min Price" />
+
+            <label for="max-price">Max Price:</label>
+            <input type="number" id="max-price" @bind="maxPrice" @oninput="FilterByPrice" class="price-input" placeholder="Max Price" />
+        </div>
+
+        <div class="filter-container">
+            <div class="filter-location">
+                <label for="city-filter">Search City:</label>
+                <input type="text" id="city-filter" @bind="selectedCity" @oninput="FilterByCity" class="city-input" placeholder="Enter city name" />
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="book-row">
+    @if (paginatedBooks != null && paginatedBooks.Count > 0)
+    {
+        @foreach (var book in paginatedBooks)
+        {
+            <div class="book-card">
+                <div class="card">
+                    <div class="card-split-layout">
+                        <div class="card-left-section">
+                            @if (!string.IsNullOrEmpty(book.Category))
+                            {
+                                <div class="category-label">@book.Category</div>
+                            }
+                            <div class="book-title">@book.BookName</div>
+                            <div class="android-icon">
+                                @if (!string.IsNullOrEmpty(book.ImagePath))
+                                {
+                                    <img src="@book.ImagePath" alt="Book Image" />
+                                }
+                            </div>
+                        </div>
+                        <div class="card-right-section">
+                            <div class="difficulty-section">
+                                <span class="difficulty-label">Price</span>
+                                <span class="difficulty-value">@string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", book.Price)</span>
+                            </div>
+                            <div class="book-details">
+                                <p><strong>Author:</strong> @book.Author</p>
+                                <p><strong>ISBN:</strong> @book.ISBN</p>
+                                <p><strong>Contact:</strong> @book.CellNo</p>
+                                @if (book.IsExchangeable)
+                                {
+                                    <p><strong>Exchangeable:</strong> Yes</p>
+                                    @if (!string.IsNullOrEmpty(book.ExchangeBookName))
+                                    {
+                                        <p><strong>Exchangeable With:</strong> @book.ExchangeBookName</p>
+                                    }
+                                }
+                                else
+                                {
+                                    <p><strong>Exchangeable:</strong> No</p>
+                                }
+                            </div>
+                            <button class="begin-button" @onclick="() => ViewBookDetails(book.Id)">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-warning text-center" role="alert">
+                No books available.
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination Controls -->
+@if (filteredBooks != null && filteredBooks.Count > 0)
+{
+    <div class="pagination-container">
+        <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(currentPage == 1)">Previous</button>
+        <span class="page-info">Page @currentPage of @TotalPages</span>
+        <button class="btn btn-secondary" @onclick="NextPage" disabled="@(currentPage == TotalPages)">Next</button>
+    </div>
+}
+
+<!-- Footer -->
+<div class="container my-5">
+    <footer class="text-center text-lg-start" style="background-color: #005F5F;">
+        <div class="container d-flex justify-content-center py-5">
+            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+                <i class="fab fa-youtube"></i>
+            </button>
+            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+                <i class="fab fa-instagram"></i>
+            </button>
+            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+                <i class="fab fa-twitter"></i>
+            </button>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2020 Copyright:
+            <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private List<Book>? books;           // All books
+    private List<Book>? filteredBooks;  // Filtered books for search
+    private List<Book>? paginatedBooks; // Books to display on current page
+    private string? searchTerm;         // User's search input
+    private string? selectedCategory;   // Selected category for filtering
+    private string? selectedCity;       // Selected city for filtering
+    private int currentPage = 1;
+    private const int BooksPerPage = 12;
+    private int? minPrice;              // User's min price input
+    private int? maxPrice;              // User's max price input
+    private bool isAuthenticated = false;
+
+    private List<string> allCategories = new List<string>
+    {
+        "Generic", "Novels", "Science", "Religion", "Technology"
+    };
+
+    private int TotalPages
+    {
+        get
+        {
+            if (filteredBooks == null) return 0;
+            return (int)Math.Ceiling((double)filteredBooks.Count / BooksPerPage);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await BookService.GetAllBooksAsync();
+        filteredBooks = books;
+        UpdatePaginatedBooks();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+
+    private void UpdatePaginatedBooks()
+    {
+        if (filteredBooks == null || !filteredBooks.Any())
+        {
+            paginatedBooks = new List<Book>();
+            return;
+        }
+
+        int startIndex = (currentPage - 1) * BooksPerPage;
+        paginatedBooks = filteredBooks.Skip(startIndex).Take(BooksPerPage).ToList();
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+            UpdatePaginatedBooks();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            UpdatePaginatedBooks();
+        }
+    }
+
+    private void SearchBooks()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredBooks = books;
+        }
+        else
+        {
+            filteredBooks = books
+                .Where(book => !string.IsNullOrEmpty(book.BookName) &&
+                               book.BookName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        currentPage = 1;
+        FilterByPrice();  // Reapply price filter after search
+        UpdatePaginatedBooks();
+    }
+
+    private void FilterByCategory(string category)
+    {
+        selectedCategory = category;
+        if (string.IsNullOrEmpty(selectedCategory))
+        {
+            filteredBooks = books;
+        }
+        else
+        {
+            filteredBooks = books
+                .Where(book => !string.IsNullOrEmpty(book.Category) &&
+                               book.Category.Equals(selectedCategory, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        currentPage = 1;
+        FilterByPrice();  // Reapply price filter after category change
+        UpdatePaginatedBooks();
+    }
+
+    private void FilterByCity(ChangeEventArgs e)
+    {
+        selectedCity = e.Value?.ToString();
+        if (string.IsNullOrEmpty(selectedCity))
+        {
+            filteredBooks = books;
+        }
+        else
+        {
+            filteredBooks = books
+                .Where(book => !string.IsNullOrEmpty(book.City) &&
+                               book.City.Contains(selectedCity, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        currentPage = 1;
+        FilterByPrice();  // Reapply price filter after city change
+        UpdatePaginatedBooks();
+    }
+
+    private void FilterByPrice()
+    {
+        if (minPrice.HasValue || maxPrice.HasValue)
+        {
+            filteredBooks = filteredBooks
+                .Where(book =>
+                    (!minPrice.HasValue || book.Price >= minPrice) &&
+                    (!maxPrice.HasValue || book.Price <= maxPrice))
+                .ToList();
+        }
+        UpdatePaginatedBooks();
+    }
+
+    private void ViewBookDetails(int bookId)
+    {
+        if (isAuthenticated)
+        {
+            Navigation.NavigateTo($"/buynow/{bookId}");
+        }
+        else
+        {
+            js.InvokeVoidAsync("alert", "Please sign in to view book details.");
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

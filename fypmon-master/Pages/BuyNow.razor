@@ -1,0 +1,73 @@
+﻿@page "/buynow/{BookId:int}"
+@attribute [Authorize(Roles = "User")]
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using BlazorServerAuthenticationAndAuthorization.Services
+@inject BookService BookService
+@inject NavigationManager NavigationManager
+<link href="/css/BuyNow.css" rel="stylesheet" />
+
+<div class="buynow-container">
+    <div class="book-details">
+        @if (book == null)
+
+        {
+            <p>Sorry, this book was not found.</p>
+        }
+
+        else
+
+        {
+            <div class="book-image">
+                <img src="@book.ImagePath" alt="Book Cover Image" />
+            </div>
+            <div class="book-info">
+                <h1>@book.BookName</h1>
+                <p><strong>Author:</strong> @book.Author</p>
+                <p><strong>Publisher:</strong> @book.Publisher</p>
+                <p><strong>Edition:</strong> @book.Edition</p>
+                <p><strong>Condition:</strong> @book.Condition</p>
+                <p><strong>Category:</strong> @book.Category</p>
+                <p><strong>City:</strong> @book.City</p>
+                <p class="card-text"><strong>Price:</strong> @string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", book.Price)</p>
+                <p><strong>Contact:</strong> @book.CellNo</p>
+                @if (book.IsExchangeable)
+
+                {
+                    <p><strong>Exchangeable With:</strong> @book.ExchangeBookName</p>
+                }
+                <p><strong>Added By:</strong> @book.UserInfo.UserName</p>
+                <!-- View Detail Button -->
+               
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int BookId { get; set; }
+
+
+
+    private Book? book;
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        book = await BookService.GetBookByIdAsync(BookId);
+
+    }
+
+
+
+    private void NavigateToDetail()
+
+    {
+
+        NavigationManager.NavigateTo($"/details/{BookId}");
+
+    }
+}
+

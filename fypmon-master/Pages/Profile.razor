@@ -1,0 +1,258 @@
+﻿@page "/profile"
+@using BlazorServerAuthenticationAndAuthorization.Data
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using BlazorServerAuthenticationAndAuthorization.Authentication
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AppDbContext DbContext
+@inject NavigationManager Navigation
+<link href="/css/Profile.css" rel="stylesheet" />
+
+<PageTitle>Profile</PageTitle>
+@if (!isAuthenticated)
+
+{
+    <p>You must log in to view this page.</p>
+}
+
+else if (isLoading)
+
+{
+    <p>Loading user data...</p>
+}
+
+else if (userInfo == null)
+
+{
+    <p>No user data found. Please contact support.</p>
+}
+
+else
+
+{
+    <div class="profile-card">
+        <div class="card-front">
+            @if (!string.IsNullOrEmpty(userInfo.ProfilePicture))
+
+            {
+                <img src="data:image/jpeg;base64,@userInfo.ProfilePicture" alt="Profile Picture" class="profile-img" />
+            }
+
+            else
+
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" class="default-profile-icon" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
+                </svg>
+            }
+            <h1>@userInfo.UserName</h1>
+            <p>Email: @userInfo.Email</p>
+            <p>Phone: @userInfo.Phone</p>
+            <p>Location: @userInfo.Location</p>
+            <p>Bio: @userInfo.Bio</p>
+            <button class="edit-btn" @onclick="ToggleEditMode">Edit Profile</button>
+        </div>
+
+        @if (isEditMode)
+
+        {
+            <form class="profile-form" @onsubmit="SaveProfile">
+                <label>Phone:</label>
+                <input type="text" @bind="userInfo.Phone" placeholder="Phone" />
+                <label>Location:</label>
+                <input type="text" @bind="userInfo.Location" placeholder="Location" />
+                <label>Bio:</label>
+                <textarea @bind="userInfo.Bio" placeholder="Bio"></textarea>
+                <label>Profile Picture:</label>
+                <InputFile OnChange="HandleFileSelected" />
+                @if (!string.IsNullOrEmpty(profilePicturePreview))
+
+                {
+                    <img src="@profilePicturePreview" alt="Preview" class="profile-preview" />
+                }
+                <button type="submit">Save</button>
+                <button type="button" @onclick="ToggleEditMode">Cancel</button>
+            </form>
+        }
+    </div>
+}
+
+@code {
+    private UserInfo? userInfo { get; set; }
+
+
+
+    private bool isEditMode = false;
+
+
+
+    private bool isAuthenticated = false;
+
+
+
+    private bool isLoading = true;
+
+
+
+    private IBrowserFile? profilePictureFile;
+
+
+
+    private string? profilePicturePreview;
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+
+
+
+        if (isAuthenticated)
+
+        {
+
+            var email = user.FindFirstValue(ClaimTypes.Email);
+
+
+
+            if (!string.IsNullOrEmpty(email))
+
+            {
+
+                userInfo = await DbContext.UserInfo.FirstOrDefaultAsync(u => u.Email == email);
+
+
+
+                if (userInfo == null)
+
+                {
+
+                    // Create a new user if not found in the database.
+
+                    userInfo = new UserInfo
+
+                        {
+
+                            Email = email,
+
+                            UserName = user.Identity?.Name ?? "N/A"
+
+                        };
+
+                    DbContext.UserInfo.Add(userInfo);
+
+                    await DbContext.SaveChangesAsync();
+
+                }
+
+            }
+
+        }
+
+        else
+
+        {
+
+            Navigation.NavigateTo("/login");
+
+        }
+
+        isLoading = false;
+
+    }
+
+
+
+    private void ToggleEditMode()
+
+    {
+
+        isEditMode = !isEditMode;
+
+    }
+
+
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+
+    {
+
+        profilePictureFile = e.File;
+
+        var buffer = new byte[profilePictureFile.Size];
+
+        await profilePictureFile.OpenReadStream().ReadAsync(buffer);
+
+        profilePicturePreview = $"data:image/jpeg;base64,{Convert.ToBase64String(buffer)}";
+
+    }
+
+
+
+    private async Task SaveProfile()
+
+    {
+
+        try
+
+        {
+
+            if (userInfo == null)
+
+            {
+
+                Console.WriteLine("User information is not loaded.");
+
+                return;
+
+            }
+
+
+
+            if (profilePictureFile != null)
+
+            {
+
+                var buffer = new byte[profilePictureFile.Size];
+
+                await profilePictureFile.OpenReadStream().ReadAsync(buffer);
+
+                userInfo.ProfilePicture = Convert.ToBase64String(buffer);
+
+            }
+
+
+
+            DbContext.Entry(userInfo).State = EntityState.Modified;
+
+            await DbContext.SaveChangesAsync();
+
+
+
+            isEditMode = false;
+
+            StateHasChanged();
+
+            Console.WriteLine("Profile updated successfully.");
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"An error occurred while saving the profile: {ex.Message}");
+
+        }
+
+    }
+}

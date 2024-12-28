@@ -1,0 +1,105 @@
+﻿@page "/login"
+@using BlazorServerAuthenticationAndAuthorization.Authentication
+@using BlazorServerAuthenticationAndAuthorization.Model
+@using BlazorServerAuthenticationAndAuthorization.Data
+@inject UserAccountService UserAccountService
+@inject CustomAuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+<link href="/css/Login.css" rel="stylesheet" />
+
+<div class="form-container">
+    <p class="title">Welcome back</p>
+    <EditForm Model="loginUser" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form">
+            <div>
+                <InputText class="input" placeholder="Username" @bind-Value="loginUser.UserName" />
+            </div>
+            <div>
+                <InputText class="input" placeholder="Password" type="password" @bind-Value="loginUser.Password" />
+                <p class="page-link">
+                    <span class="page-link-label">Forgot Password?</span>
+                </p>
+            </div>
+            <button type="submit" class="form-btn">Log in</button>
+        </div>
+    </EditForm>
+    <p class="sign-up-label">
+        Don't have an account? <span class="sign-up-link" @onclick="NavigateToSignUp">Sign up</span>
+    </p>
+</div>
+
+@code {
+    private UserInfo loginUser = new UserInfo();
+
+
+
+    private string loginMessage = string.Empty;
+
+
+
+    private async Task HandleValidSubmit()
+
+    {
+
+        if (string.IsNullOrEmpty(loginUser.UserName) || string.IsNullOrEmpty(loginUser.Password))
+
+        {
+
+            loginMessage = "Username and password are required.";
+
+            return;
+
+        }
+
+
+
+        var user = await UserAccountService.GetByUserNameAsync(loginUser.UserName);
+
+
+
+        if (user != null && user.Password == loginUser.Password)
+
+        {
+
+            var userSession = new UserSession
+
+                {
+
+                    UserName = user.UserName,
+
+                    Email = user.Email,
+
+                    Role = user.Role
+
+                };
+
+
+
+            await AuthenticationStateProvider.UpdateAuthenticationState(userSession);
+
+            Navigation.NavigateTo("/");
+
+        }
+
+        else
+
+        {
+
+            loginMessage = "Invalid username or password.";
+
+        }
+
+    }
+
+
+
+    private void NavigateToSignUp()
+
+    {
+
+        Navigation.NavigateTo("/register");
+
+    }
+}

@@ -1,0 +1,106 @@
+﻿@page "/register"
+@using BlazorServerAuthenticationAndAuthorization.Authentication
+@using BlazorServerAuthenticationAndAuthorization.Data
+@using Microsoft.AspNetCore.Components.Forms
+@inject UserAccountService UserAccountService
+@inject NavigationManager Navigation
+
+<link href="/css/Register.css" rel="stylesheet" />
+
+<EditForm Model="newUser" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-container">
+        <p class="title">Create a New Account</p>
+        <div class="form">
+            <div>
+                <InputText class="input" placeholder="Email" @bind-Value="newUser.Email" />
+                @if (!string.IsNullOrEmpty(emailMessage))
+                {
+                    <div class="error-message">@emailMessage</div>
+                }
+            </div>
+            <div>
+                <InputText class="input" placeholder="Username" @bind-Value="newUser.UserName" />
+            </div>
+            <div>
+                <InputText class="input" placeholder="Password" type="password" @bind-Value="newUser.Password" />
+            </div>
+            <div>
+                <InputSelect class="input" @bind-Value="newUser.Role">
+                    <option value="User">User</option>
+                    <option value="Administrator">Administrator</option>
+                </InputSelect>
+            </div>
+            <button type="submit" class="form-btn">Register</button>
+        </div>
+        <p class="sign-up-label">
+            Already have an account? <span class="sign-up-link" @onclick="NavigateToLogin">Login here</span>
+        </p>
+    </div>
+</EditForm>
+
+@code {
+    private UserInfo newUser = new UserInfo();
+
+    private string emailMessage = string.Empty;
+
+
+
+    private async Task HandleValidSubmit()
+
+    {
+
+        if (string.IsNullOrEmpty(newUser.Email))
+
+        {
+
+            emailMessage = "Email is required.";
+
+            return;
+
+        }
+
+
+
+        var existingUser = await UserAccountService.GetByEmailAsync(newUser.Email);
+
+        if (existingUser != null)
+
+        {
+
+            emailMessage = "Email already exists.";
+
+        }
+
+        else
+
+        {
+
+            var result = await UserAccountService.CreateUserAsync(newUser);
+
+            if (result)
+
+            {
+
+                Navigation.NavigateTo("/login");
+
+            }
+
+        }
+
+    }
+
+
+
+    private void NavigateToLogin()
+
+    {
+
+        Navigation.NavigateTo("/login");
+
+    }
+}
+
+

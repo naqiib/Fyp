@@ -1,0 +1,22 @@
+﻿
+.btn-create {
+    background-color: green; /* Green background */
+    color: white; /* White text color */
+    border: none; /* Remove default border */
+    padding: 15px 30px; /* Padding for a bigger button */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Display as inline-block */
+    font-size: 18px; /* Set font size */
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Hover effect */
+.btn-create:hover {
+    background-color: #45a049; /* Darker green */
+    transform: scale(1.05); /* Slightly increase the size */
+}
+
+
