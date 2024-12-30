@@ -1,9 +1,15 @@
-﻿/* Main Home Section */
+﻿body {
+    background-image: url('../uploads/back.jpg');
+    background-size: cover; /* Ensures the image covers the entire background */
+ 
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+ 
+}
+
 .main-home {
     font-family: Arial, sans-serif;
     padding: 20px;
-    background-image: url('../uploads/bg.jpg');
-    
+   
 }
 
 .hero-section {
@@ -22,7 +28,7 @@
 .search-input {
     padding: 10px;
     width: 55%;
-    border: 2px solid  #005F5F;
+    border: 2px solid #005F5F;
     border-radius: 5px;
     font-size: 16px;
 }
@@ -30,15 +36,30 @@
 .btn-search {
     background-color: #005F5F;
     color: white;
-    padding: 10px 20px;
+    padding: 10px 50px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
-.btn-search:hover {
-    background-color: #004c4c;
+    .btn-search:hover {
+        background-color: #004c4c;
+    }
+
+/* Sell Button Styling */
+.btn-sell {
+    background-color: #005F5F;
+    color: white;
+    padding: 10px 60px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
+
+    .btn-sell:hover {
+        background-color: #218838;
+    }
 
 /* Container for Price Range and City Search */
 .filter-container {
@@ -53,28 +74,28 @@
     display: flex;
     gap: 30px; /* Space between Min and Max Price inputs */
     align-items: center;
-    margin:20px;
-    justify-content:center;
+    margin: 20px;
+    justify-content: center;
 }
 
-.filter-price label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
+    .filter-price label {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
 
 .price-input {
     padding: 10px 10px 10px 5px;
     font-size: 16px;
     border-radius: 5px;
-    border: 2px solid  #005F5F;
+    border: 2px solid #005F5F;
     width: 100px; /* Adjust the width of price input fields */
     text-align: right;
 }
 
-.price-input::placeholder {
-    text-align: right;
-}
+    .price-input::placeholder {
+        text-align: right;
+    }
 
 /* City Search Section (Right side) */
 .filter-location {
@@ -82,26 +103,25 @@
     align-items: center;
 }
 
-.filter-location label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin-right: 10px; /* Space between label and input */
-}
+    .filter-location label {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        margin-right: 10px; /* Space between label and input */
+    }
 
 .city-input {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
-    border: 2px solid  #005F5F;
+    border: 2px solid #005F5F;
     width: 300px; /* Adjust width of city input */
     text-align: left;
 }
 
-.city-input::placeholder {
-    text-align: left;
-}
-
+    .city-input::placeholder {
+        text-align: left;
+    }
 
 /* Button styling for Price and City Filters */
 .btn-filter {
@@ -114,9 +134,9 @@
     font-size: 16px;
 }
 
-.btn-filter:hover {
-    background-color: #004c4c;
-}
+    .btn-filter:hover {
+        background-color: #004c4c;
+    }
 
 /* Category Filter Section */
 .filter-container {
@@ -162,23 +182,23 @@
     color: #333; /* Text color */
 }
 
-.card-left-section .category-label {
-    font-size: 0.9rem;
-    color: #fff; /* White color for category text */
-    text-transform: uppercase;
-    margin-bottom: 10px;
-}
+    .card-left-section .category-label {
+        font-size: 0.9rem;
+        color: #fff; /* White color for category text */
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
 
-.card-left-section .book-title {
-    color: #000; /* Black color for book title */
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
+    .card-left-section .book-title {
+        color: #000; /* Black color for book title */
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
 .android-icon img {
     max-width: 100%;
-    height: auto;
+    height: fit-content;
     border-radius: 10px;
 }
 
@@ -213,9 +233,9 @@
     margin-top: 30px;
 }
 
-.pagination-container button {
-    padding: 10px 20px;
-}
+    .pagination-container button {
+        padding: 10px 20px;
+    }
 
 .page-info {
     display: flex;
@@ -232,9 +252,9 @@
     text-align: center;
 }
 
-.begin-button:hover {
-    background-color: #004c4c;
-}
+    .begin-button:hover {
+        background-color: #004c4c;
+    }
 
 /* Category Button Row (For Categories Below Search Input) */
 .categories-row {
@@ -259,11 +279,11 @@
     text-align: center;
 }
 
-/* Category Button Hover Effect */
-.category-button:hover {
-    background-color: #003d3d; /* Darker background on hover */
-    transform: scale(1.05); /* Slightly enlarge the button on hover */
-}
+    /* Category Button Hover Effect */
+    .category-button:hover {
+        background-color: #003d3d; /* Darker background on hover */
+        transform: scale(1.05); /* Slightly enlarge the button on hover */
+    }
 
 /* Responsive Design Adjustments for Smaller Screens */
 @media (max-width: 768px) {
@@ -292,6 +312,214 @@
     }
 
     .btn-filter {
-        width: 100%; /* Full width filter button on small screens */
+        width: 100%; /* Full width filter button on small screens */
+            
     }
+}
+
+
+
+
+.footer {
+    background: #005F5F;
+    padding: 30px 0px;
+    font-family: 'Play', sans-serif;
+    text-align: center;
+}
+
+    .footer .row {
+        width: 100%;
+        margin: 1% 0%;
+        padding: 0.6% 0%;
+        color: gray;
+        font-size: 0.8em;
+    }
+
+        .footer .row a {
+            text-decoration: none;
+            color: gray;
+            transition: 0.5s;
+        }
+
+            .footer .row a:hover {
+                color: #fff;
+            }
+
+        .footer .row ul {
+            width: 100%;
+        }
+
+            .footer .row ul li {
+                display: inline-block;
+                margin: 0px 30px;
+            }
+
+        .footer .row a i {
+            font-size: 2em;
+            margin: 0% 1%;
+        }
+
+@media (max-width:720px) {
+    .footer {
+        text-align: left;
+        padding: 5%;
+    }
+
+        .footer .row ul li {
+            display: block;
+            margin: 10px 0px;
+            text-align: left;
+        }
+
+        .footer .row a i {
+            margin: 0% 3%;
+        }
+}
+
+
+
+/* Book of the Day Section */
+.book-of-the-day {
+    margin: 40px 0;
+    text-align: center;
+}
+
+    .book-of-the-day h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .book-of-the-day .book-card {
+        margin: 0 auto;
+        max-width: 400px;
+    }
+
+    .book-of-the-day .card-split-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .book-of-the-day .card-left-section {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .book-of-the-day .card-right-section {
+        width: 100%;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .book-of-the-day .difficulty-section {
+        margin-bottom: 20px;
+    }
+
+    .book-of-the-day p {
+        font-size: 1.2rem;
+        margin: 20px 0;
+    }
+
+/* Responsive Design Adjustments for Smaller Screens */
+@media (max-width: 768px) {
+    .categories-row {
+        justify-content: center; /* Center categories on smaller screens */
+    }
+
+    .category-button {
+        font-size: 14px; /* Reduce font size on smaller screens */
+        padding: 10px 15px; /* Adjust padding on small screens */
+    }
+
+    /* Adjust Search Filter Inputs */
+    .search-input {
+        width: 100%; /* Increase width for search input on mobile */
+    }
+
+    .price-range-container {
+        flex-direction: column; /* Stack min and max price on smaller screens */
+        align-items: flex-start;
+    }
+
+    .price-input,
+    .city-input {
+        width: 100%; /* Full width inputs on small screens */
+    }
+
+    .btn-filter {
+        width: 100%; /* Full width filter button on small screens */
+            
+    }
+}
+
+/* News Section Styling */
+.news-section {
+    background-color: #005F5F;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.news-item {
+    display: inline-block;
+    margin-right: 50px;
+    font-size: 16px;
+    color: white;
+}
+
+/* Announcement Section */
+.announcement-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-bottom: 2px solid #005F5F;
+    margin-bottom: 20px;
+}
+
+.announcement-container {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: scroll-left 20s linear infinite;
+}
+
+.announcement-item {
+    flex: 0 0 auto;
+    margin-right: 20px;
+}
+
+    .announcement-item p {
+        font-size: 1.2rem;
+        margin: 0;
+        color: #333;
+    }
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+            
+    }
+}
+
+/* Exchangeable Label Styling */
+.exchangeable-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10; 
+}
+
+/* Card Layout Adjustments */
+.card-left-section {
+    position: relative; /* Ensure the label is positioned relative to this section */
 }

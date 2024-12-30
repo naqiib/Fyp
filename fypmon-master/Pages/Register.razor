@@ -23,15 +23,13 @@
             </div>
             <div>
                 <InputText class="input" placeholder="Username" @bind-Value="newUser.UserName" />
+                @if (!string.IsNullOrEmpty(usernameMessage))
+                {
+                    <div class="error-message">@usernameMessage</div>
+                }
             </div>
             <div>
                 <InputText class="input" placeholder="Password" type="password" @bind-Value="newUser.Password" />
-            </div>
-            <div>
-                <InputSelect class="input" @bind-Value="newUser.Role">
-                    <option value="User">User</option>
-                    <option value="Administrator">Administrator</option>
-                </InputSelect>
             </div>
             <button type="submit" class="form-btn">Register</button>
         </div>
@@ -45,6 +43,8 @@
     private UserInfo newUser = new UserInfo();
 
     private string emailMessage = string.Empty;
+
+    private string usernameMessage = string.Empty;
 
 
 
@@ -64,29 +64,59 @@
 
 
 
-        var existingUser = await UserAccountService.GetByEmailAsync(newUser.Email);
+        var existingUserByEmail = await UserAccountService.GetByEmailAsync(newUser.Email);
 
-        if (existingUser != null)
+        if (existingUserByEmail != null)
 
         {
 
             emailMessage = "Email already exists.";
 
+            return;
+
         }
 
-        else
+
+
+        if (string.IsNullOrEmpty(newUser.UserName))
 
         {
 
-            var result = await UserAccountService.CreateUserAsync(newUser);
+            usernameMessage = "Username is required.";
 
-            if (result)
+            return;
 
-            {
+        }
 
-                Navigation.NavigateTo("/login");
 
-            }
+
+        var existingUserByUsername = await UserAccountService.GetByUserNameAsync(newUser.UserName);
+
+        if (existingUserByUsername != null)
+
+        {
+
+            usernameMessage = "Username already exists.";
+
+            return;
+
+        }
+
+
+
+        // Set the role to "User" by default
+
+        newUser.Role = "User";
+
+
+
+        var result = await UserAccountService.CreateUserAsync(newUser);
+
+        if (result)
+
+        {
+
+            Navigation.NavigateTo("/login");
 
         }
 
@@ -102,5 +132,3 @@
 
     }
 }
-
-

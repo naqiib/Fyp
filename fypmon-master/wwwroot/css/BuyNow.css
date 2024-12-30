@@ -1,4 +1,7 @@
-﻿.buynow-container {
+﻿body {
+    background-color: #005F5F;
+}
+.buynow-container {
     display: flex;
     justify-content: center;
     align-items: center;

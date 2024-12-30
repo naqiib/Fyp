@@ -53,6 +53,7 @@ else
             <p>Location: @userInfo.Location</p>
             <p>Bio: @userInfo.Bio</p>
             <button class="edit-btn" @onclick="ToggleEditMode">Edit Profile</button>
+            <button class="delete-btn" @onclick="ConfirmDeleteAccount">Delete Account</button>
         </div>
 
         @if (isEditMode)
@@ -79,28 +80,42 @@ else
     </div>
 }
 
+@if (showDeleteModal)
+
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteAccount">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private UserInfo? userInfo { get; set; }
 
-
-
     private bool isEditMode = false;
-
-
 
     private bool isAuthenticated = false;
 
-
-
     private bool isLoading = true;
-
-
 
     private IBrowserFile? profilePictureFile;
 
-
-
     private string? profilePicturePreview;
+
+    private bool showDeleteModal = false;
 
 
 
@@ -251,6 +266,60 @@ else
         {
 
             Console.WriteLine($"An error occurred while saving the profile: {ex.Message}");
+
+        }
+
+    }
+
+
+
+    private void ConfirmDeleteAccount()
+
+    {
+
+        showDeleteModal = true;
+
+    }
+
+
+
+    private void CloseDeleteModal()
+
+    {
+
+        showDeleteModal = false;
+
+    }
+
+
+
+    private async Task DeleteAccount()
+
+    {
+
+        try
+
+        {
+
+            if (userInfo != null)
+
+            {
+
+                DbContext.UserInfo.Remove(userInfo);
+
+                await DbContext.SaveChangesAsync();
+
+                Navigation.NavigateTo("/login");
+
+            }
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"An error occurred while deleting the account: {ex.Message}");
 
         }
 

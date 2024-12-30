@@ -1,13 +1,13 @@
-﻿<style >
-/* General Styles */
+﻿
 body {
+    
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #005F5F !important;
     color: #343a40;
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #005F5F;
     border-color: #007bff;
 }
 
@@ -22,8 +22,9 @@ body {
 }
 
     .btn-danger:hover {
-        background-color: #c82333;
+        background-color: #005F5F;
         border-color: #bd2130;
+        padding:10px 40px;
     }
 
 .btn-secondary {
@@ -90,6 +91,7 @@ body {
 .modal-dialog {
     max-width: 600px;
     margin: 1.75rem auto;
+    background-color: #005F5F;
 }
 
 .modal-content {
@@ -179,19 +181,19 @@ body {
 }
 
 .btn-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: #000;
-    opacity: 0.5;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    background-color: #005F5F; /* Ensure the background is white */
+    border: 3px solid red; /* Complete the border property */
+    font-size: 20px;
+    color: red; /* Ensure the text color is red */
+    cursor: pointer;
+    padding: 10px 20px; /* Add some padding for better visibility */
+    border-radius: 5px; /* Optional: Add border-radius for rounded corners */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Optional: Add transition for hover effects */
 }
 
     .btn-close:hover {
-        opacity: 0.75;
+        background-color: red; /* Light red background on hover */
+        color: #ff0000; /* Darker red text on hover */
     }
 
 /* Ensure all cards have the same height */
@@ -220,4 +222,4 @@ body {
     text-align: center;
 }
 
-</style >
+

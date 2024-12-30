@@ -7,6 +7,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
 <PageTitle>Index</PageTitle>
 
@@ -26,6 +28,7 @@
         <div class="search-filter-container">
             <input type="text" placeholder="Search for books..." @bind="searchTerm" class="search-input" />
             <button class="btn-search" @onclick="SearchBooks">Search</button>
+            <button class="btn-sell" @onclick="NavigateToSellPage">Sell Your Books</button>
         </div>
 
         <!-- Categories Row -->
@@ -54,8 +57,17 @@
             </div>
         </div>
     </section>
-</div>
 
+    <!-- News Section -->
+    <div class="news-section">
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+            <span class="news-item">New Feature Release: We are excited to announce the release of our new feature that allows users to save their favorite books to a wishlist. Stay tuned for more updates!</span>
+            <span class="news-item">Upcoming Book Signing Event: Join us for an exclusive book signing event with your favorite authors. The event will take place on November 15, 2023, at our main branch. Don't miss out!</span>
+            <!-- Add more news items as needed -->
+        </marquee>
+    </div>
+</div>
+<!-- Book Cards Section -->
 <div class="book-row">
     @if (paginatedBooks != null && paginatedBooks.Count > 0)
     {
@@ -65,39 +77,22 @@
                 <div class="card">
                     <div class="card-split-layout">
                         <div class="card-left-section">
-                            @if (!string.IsNullOrEmpty(book.Category))
-                            {
-                                <div class="category-label">@book.Category</div>
-                            }
-                            <div class="book-title">@book.BookName</div>
                             <div class="android-icon">
                                 @if (!string.IsNullOrEmpty(book.ImagePath))
                                 {
                                     <img src="@book.ImagePath" alt="Book Image" />
                                 }
                             </div>
+                            @if (book.IsExchangeable)
+                            {
+                                <span class="exchangeable-label">Exchangeable</span>
+                            }
                         </div>
                         <div class="card-right-section">
                             <div class="difficulty-section">
+                                <div class="book-title">@book.BookName</div>
                                 <span class="difficulty-label">Price</span>
                                 <span class="difficulty-value">@string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", book.Price)</span>
-                            </div>
-                            <div class="book-details">
-                                <p><strong>Author:</strong> @book.Author</p>
-                                <p><strong>ISBN:</strong> @book.ISBN</p>
-                                <p><strong>Contact:</strong> @book.CellNo</p>
-                                @if (book.IsExchangeable)
-                                {
-                                    <p><strong>Exchangeable:</strong> Yes</p>
-                                    @if (!string.IsNullOrEmpty(book.ExchangeBookName))
-                                    {
-                                        <p><strong>Exchangeable With:</strong> @book.ExchangeBookName</p>
-                                    }
-                                }
-                                else
-                                {
-                                    <p><strong>Exchangeable:</strong> No</p>
-                                }
                             </div>
                             <button class="begin-button" @onclick="() => ViewBookDetails(book.Id)">View Details</button>
                         </div>
@@ -126,28 +121,63 @@
     </div>
 }
 
+<!-- Book of the Day Section -->
+@if (bookOfTheDay != null)
+{
+    <section class="book-of-the-day">
+        <h2>Book of the Day</h2>
+        <div class="book-card">
+            <div class="card">
+                <div class="card-split-layout">
+                    <div class="card-left-section">
+                        <div class="android-icon">
+                            @if (!string.IsNullOrEmpty(bookOfTheDay.ImagePath))
+                            {
+                                <img src="@bookOfTheDay.ImagePath" alt="Book Image" />
+                            }
+                        </div>
+                    </div>
+                    <div class="card-right-section">
+                        <div class="difficulty-section">
+                            <div class="book-title">@bookOfTheDay.BookName</div>
+                            <span class="difficulty-label">Price</span>
+                            <span class="difficulty-value">@string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", bookOfTheDay.Price)</span>
+                        </div>
+                        <p>
+                            Dive into the captivating world of @bookOfTheDay.BookName, a book that promises to engage and inspire. Whether you're a seasoned reader or just starting your literary journey, this book offers a unique perspective that will keep you hooked from start to finish.
+                        </p>
+                        <button class="begin-button" @onclick="() => ViewBookDetails(bookOfTheDay.Id)">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
 <!-- Footer -->
 <div class="container my-5">
-    <footer class="text-center text-lg-start" style="background-color: #005F5F;">
-        <div class="container d-flex justify-content-center py-5">
-            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
-                <i class="fab fa-facebook-f"></i>
-            </button>
-            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
-                <i class="fab fa-youtube"></i>
-            </button>
-            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
-                <i class="fab fa-instagram"></i>
-            </button>
-            <button type="button" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
-                <i class="fab fa-twitter"></i>
-            </button>
-        </div>
+    <footer>
+        <div class="footer">
+            <div class="row" style="display: flex; justify-content: center; gap: 10px;">
+                <a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
+                <a href="https://www.linkedin.com/in/muhammadi-drees/"><i class="fa fa-linkedin"></i></a>
+                <a href="https://wa.link/nvgngg" target="_blank"><i class="fa fa-whatsapp"></i></a>
 
-        <!-- Copyright -->
-        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright:
-            <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+            </div>
+
+
+            <div class="row">
+                <ul>
+
+                    <li><h3><a href="/about-us">Contact us</a></h3></li>
+                    <li><h3><a href="/termscondition">terms and Condition</a></h3></li>
+                    <li><h3><a href="/faq">Frequently ask question</a></h3></li>
+                    <li><h3><a href="/contact-us">Help And Support</a></h3></li>
+
+                </ul>
+            </div>
+
         </div>
     </footer>
 </div>
@@ -164,10 +194,11 @@
     private int? minPrice;              // User's min price input
     private int? maxPrice;              // User's max price input
     private bool isAuthenticated = false;
+    private Book? bookOfTheDay;        // Book of the Day
 
     private List<string> allCategories = new List<string>
     {
-        "Generic", "Novels", "Science", "Religion", "Technology"
+       "Generic", "Novels", "Science", "Religion", "Technology"
     };
 
     private int TotalPages
@@ -187,6 +218,19 @@
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        // Select a random book of the day
+        SelectBookOfTheDay();
+    }
+
+    private void SelectBookOfTheDay()
+    {
+        if (books != null && books.Count > 0)
+        {
+            Random random = new Random();
+            int index = random.Next(books.Count);
+            bookOfTheDay = books[index];
+        }
     }
 
     private void UpdatePaginatedBooks()
@@ -300,6 +344,18 @@
         else
         {
             js.InvokeVoidAsync("alert", "Please sign in to view book details.");
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private void NavigateToSellPage()
+    {
+        if (isAuthenticated)
+        {
+            Navigation.NavigateTo("/addbook");
+        }
+        else
+        {
             Navigation.NavigateTo("/login");
         }
     }

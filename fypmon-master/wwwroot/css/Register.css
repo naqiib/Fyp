@@ -1,4 +1,7 @@
-﻿.form-container {
+﻿body {
+    background-color: #005F5F;
+}
+.form-container {
     width: 350px;
     background-color: #fff;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;

@@ -5,6 +5,7 @@
 @inject UserAccountService UserAccountService
 @inject CustomAuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
+
 <link href="/css/Login.css" rel="stylesheet" />
 
 <div class="form-container">
@@ -14,7 +15,7 @@
         <ValidationSummary />
         <div class="form">
             <div>
-                <InputText class="input" placeholder="Username" @bind-Value="loginUser.UserName" />
+                <InputText class="input" placeholder="Email or Username" @bind-Value="loginUser.UserName" />
             </div>
             <div>
                 <InputText class="input" placeholder="Password" type="password" @bind-Value="loginUser.Password" />
@@ -28,12 +29,15 @@
     <p class="sign-up-label">
         Don't have an account? <span class="sign-up-link" @onclick="NavigateToSignUp">Sign up</span>
     </p>
+    @if (!string.IsNullOrEmpty(loginMessage))
+
+    {
+        <div class="error-message">@loginMessage</div>
+    }
 </div>
 
 @code {
     private UserInfo loginUser = new UserInfo();
-
-
 
     private string loginMessage = string.Empty;
 
@@ -47,7 +51,7 @@
 
         {
 
-            loginMessage = "Username and password are required.";
+            loginMessage = "Email/Username and password are required.";
 
             return;
 
@@ -55,7 +59,9 @@
 
 
 
-        var user = await UserAccountService.GetByUserNameAsync(loginUser.UserName);
+        var user = await UserAccountService.GetByUserNameAsync(loginUser.UserName)
+
+                   ?? await UserAccountService.GetByEmailAsync(loginUser.UserName);
 
 
 
@@ -87,7 +93,7 @@
 
         {
 
-            loginMessage = "Invalid username or password.";
+            loginMessage = "Invalid email/username or password.";
 
         }
 

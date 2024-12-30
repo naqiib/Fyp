@@ -1,0 +1,109 @@
+﻿@page "/faq"
+
+<h3>Frequently Asked Questions</h3>
+
+<div class="faq-section">
+    @foreach (var faq in faqs)
+    {
+        <div class="faq-item">
+            <button class="faq-question" @onclick="() => ToggleAnswer(faq.Id)">
+                @faq.Question
+                <span class="faq-icon">@(faq.IsExpanded ? "▼" : "▶")</span>
+            </button>
+            @if (faq.IsExpanded)
+            {
+                <div class="faq-answer">
+                    @faq.Answer
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color:#005F5F;
+        color: #343a40;
+    }
+
+    .faq-section {
+        margin: 20px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .faq-item {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 10px;
+    }
+
+    .faq-question {
+        background: none;
+        border: none;
+        padding: 15px;
+        text-align: left;
+        width: 100%;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .faq-question:hover {
+            background-color: #f1f3f5;
+        }
+
+        .faq-question:focus {
+            outline: none;
+        }
+
+    .faq-icon {
+        float: right;
+        font-size: 20px;
+    }
+
+    .faq-answer {
+        padding: 15px;
+        background-color: #f1f3f5;
+        border-left: 4px solid #007bff;
+        margin-left: 10px;
+        border-radius: 5px;
+        transition: max-height 0.3s ease;
+    }
+</style>
+
+@code {
+    private List<FAQItem> faqs = new List<FAQItem>
+    {
+        new FAQItem { Id = 1, Question = "How do I add a new book?", Answer = "To add a new book, navigate to the 'Add Book' page and fill out the required information. Make sure to include the book's title, author, ISBN, and other relevant details." },
+        new FAQItem { Id = 2, Question = "How can I contact support?", Answer = "You can contact our support team by filling out the contact form on the 'Contact Us' page. We will respond to your inquiry as soon as possible." },
+        new FAQItem { Id = 3, Question = "What is the return policy?", Answer = "Our return policy allows you to return books within 30 days of purchase. Please ensure the book is in its original condition. Contact our support team for more details." },
+        new FAQItem { Id = 5, Question = "Can I exchange a book?", Answer = "Yes, you can exchange a book if it is marked as exchangeable. Please contact the seller for more details." },
+        new FAQItem { Id = 6, Question = "How do I search for books?", Answer = "You can search for books using the search bar on the homepage. You can also filter books by category, price, and city." },
+        new FAQItem { Id = 7, Question = "How do I update my profile?", Answer = "To update your profile, go to the 'Profile' page and click on the 'Edit Profile' button. Make the necessary changes and save." },
+        new FAQItem { Id = 8, Question = "How do I delete my account?", Answer = "To delete your account, go to the 'Profile' page and click on the 'Delete Account' button. Follow the instructions to confirm the deletion." },
+        new FAQItem { Id = 9, Question = "How do I view book details?", Answer = "To view book details, click on the 'View Details' button on the book card. You will be directed to a page with detailed information about the book." },
+        new FAQItem { Id = 10, Question = "How do I add a book to my wishlist?", Answer = "Currently, the wishlist feature is not available. We are working on adding this feature in the future." }
+    };
+
+    private void ToggleAnswer(int id)
+    {
+        var faq = faqs.FirstOrDefault(f => f.Id == id);
+        if (faq != null)
+        {
+            faq.IsExpanded = !faq.IsExpanded;
+        }
+    }
+
+    private class FAQItem
+    {
+        public int Id { get; set; }
+        public string Question { get; set; }
+        public string Answer { get; set; }
+        public bool IsExpanded { get; set; }
+    }
+}

@@ -1,0 +1,78 @@
+﻿/* Terms and Conditions Container */
+body {
+    background-color: #005F5F;
+}
+.terms-conditions-container {
+    padding: 40px;
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Headings */
+h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #555;
+    font-size: 1.75em;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+/* Paragraphs */
+p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Lists */
+ul {
+    margin-left: 20px;
+    list-style-type: disc;
+}
+
+    ul li {
+        margin-bottom: 10px;
+    }
+
+/* Links */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .terms-conditions-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    p {
+        font-size: 0.9em;
+    }
+}
