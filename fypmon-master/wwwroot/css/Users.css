@@ -17,6 +17,37 @@ h3 {
     text-transform: uppercase;
 }
 
+/* Search Container */
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
+    margin-right: 10px;
+}
+
+.search-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #005F5F;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+    .search-btn:hover {
+        background-color: #004c4c;
+    }
+
 /* List Group */
 .list-group {
     margin-top: 20px;
@@ -158,5 +189,5 @@ h3 {
 }
 
     .book-item:hover {
-        background-color: #dfe6e9;
+        background-color:   #dfe6e9;
     }

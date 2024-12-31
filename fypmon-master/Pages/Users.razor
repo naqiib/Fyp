@@ -9,6 +9,11 @@
 <link href="/css/Users.css" rel="stylesheet" />
 <h3>Users</h3>
 
+<div class="search-container">
+    <input type="text" placeholder="Search by username..." @bind="searchTerm" class="search-input" />
+    <button class="search-btn" @onclick="SearchUsers">Search</button>
+</div>
+
 @if (totalBooksUploaded == null)
 {
     <p>Loading total books uploaded...</p>
@@ -29,7 +34,7 @@ else if (!users.Any())
 else
 {
     <ul class="list-group">
-        @foreach (var user in users)
+        @foreach (var user in filteredUsers)
         {
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
@@ -97,18 +102,21 @@ else
 
 @code {
     private List<UserInfo> users;
+    private List<UserInfo> filteredUsers;
     private int? totalBooksUploaded;
     private bool isAdmin = false;
     private bool showDeleteModal = false;
     private bool showUserBooksModal = false;
     private UserInfo selectedUser;
     private int deletingUserId;
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             users = await UserAccountService.GetAllUsersAsync();
+            filteredUsers = users; // Initialize filteredUsers with all users
             totalBooksUploaded = await UserAccountService.GetTotalBooksUploadedAsync();
 
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -137,6 +145,7 @@ else
         {
             await UserAccountService.DeleteUserAsync(deletingUserId);
             users = await UserAccountService.GetAllUsersAsync();
+            filteredUsers = users; // Update filteredUsers after deletion
             totalBooksUploaded = await UserAccountService.GetTotalBooksUploadedAsync();
             showDeleteModal = false;
         }
@@ -160,5 +169,17 @@ else
     private void CloseUserBooksModal()
     {
         showUserBooksModal = false;
+    }
+
+    private void SearchUsers()
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredUsers = users;
+        }
+        else
+        {
+            filteredUsers = users.Where(user => user.UserName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
     }
 }

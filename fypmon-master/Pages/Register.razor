@@ -30,6 +30,10 @@
             </div>
             <div>
                 <InputText class="input" placeholder="Password" type="password" @bind-Value="newUser.Password" />
+                @if (!string.IsNullOrEmpty(passwordMessage))
+                {
+                    <div class="error-message">@passwordMessage</div>
+                }
             </div>
             <button type="submit" class="form-btn">Register</button>
         </div>
@@ -42,15 +46,21 @@
 @code {
     private UserInfo newUser = new UserInfo();
 
+
+
     private string emailMessage = string.Empty;
 
     private string usernameMessage = string.Empty;
+
+    private string passwordMessage = string.Empty;
 
 
 
     private async Task HandleValidSubmit()
 
     {
+
+        // Validate email
 
         if (string.IsNullOrEmpty(newUser.Email))
 
@@ -78,6 +88,8 @@
 
 
 
+        // Validate username
+
         if (string.IsNullOrEmpty(newUser.UserName))
 
         {
@@ -97,6 +109,20 @@
         {
 
             usernameMessage = "Username already exists.";
+
+            return;
+
+        }
+
+
+
+        // Validate password
+
+        if (string.IsNullOrEmpty(newUser.Password) || newUser.Password.Length < 8 || newUser.Password.Contains(" "))
+
+        {
+
+            passwordMessage = "Password must be at least 8 characters long and cannot contain spaces.";
 
             return;
 
